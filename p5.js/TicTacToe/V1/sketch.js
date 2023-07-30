@@ -10,7 +10,7 @@ let currentPlayer;
 
 function setup() {
   createCanvas(400, 400);
-  frameRate(30);
+  frameRate(1);
   currentPlayer = floor(random(player.length)); //index to player array
   for(let i = 0; i < 3; i++)
     for(let j = 0; j < 3; j++){
