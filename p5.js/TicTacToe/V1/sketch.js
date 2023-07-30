@@ -4,34 +4,59 @@ let board = [
   ['','',''],
 ];
 
-let player = ['X','O'];
+let w;
+let h;
 let available = [];
-let currentPlayer;
+let ai = 'X';
+let human = 'O';
+let currentPlayer = human;
+let turn = true;
 
 function setup() {
   createCanvas(400, 400);
-  currentPlayer = floor(random(player.length)); //index to player array
+  frameRate(30);
+  w = width/3;
+  h = height/3;
+  nextTurn();
+}
+
+function mousePressed() {
+  if (currentPlayer == human) {
+    // Human make turn
+    let i = floor(mouseX / w);
+    let j = floor(mouseY / h);
+    // If valid turn
+    if (board[j][i] == '') {
+      board[j][i] = human;
+      currentPlayer = ai;
+      if(checkWinner() == null) //so when human wins the ai doesn't play
+        nextTurn();
+    }
+  }
+}
+
+function nextTurn(){
+  available = [];
   for(let i = 0; i < 3; i++)
     for(let j = 0; j < 3; j++){
-      available.push([i,j]);
+      if(board[i][j] == ''){
+        available.push({i,j});
+      }
     }
+    let move = random(available);
+    board[move.i][move.j] = ai;
+    currentPlayer = human;
 }
 
 function equals3(a,b,c){
   return (a==b && b==c && a != '');
 }
 
-function nextTurn(){
-  let l = floor(random(available.length));
-  let spot = available.splice(l,1)[0];
-  board[spot[0]][spot[1]] = player[currentPlayer];
-  currentPlayer = (currentPlayer + 1) % player.length;
-}
-
-function checkWinner(w,h){
+function checkWinner(){
   let winner = null;
-  stroke(255, 0, 0); // red stroke
-  // horizontal
+  stroke(255, 0, 0); // red stroke for who wins
+
+  // horizontal check
   for(let i = 0 ; i < 3;i++){
     if(equals3(board[i][0],board[i][1],board[i][2])){
       winner = board[i][0];
@@ -40,7 +65,7 @@ function checkWinner(w,h){
       line (x, y,5*x,y); 
     }
   }
-  // vertical
+  // vertical check
   for(let i = 0 ; i < 3;i++){
     if(equals3(board[0][i],board[1][i],board[2][i])){
       winner = board[0][i];
@@ -52,21 +77,31 @@ function checkWinner(w,h){
 
   let x = h*2 + h/2;
   let y = w*2 + w/2;
-  //diagonal
+  // 1st diagonal check
   if(equals3(board[0][0],board[1][1],board[2][2])){
     winner = board[0][0];
     line (h/2,w/2,x,y); 
   }
+  // 2nd diagonal check
   if(equals3(board[0][2],board[1][1],board [2][0])){
     winner = board[0][2];
     line (x,w/2,h/2,y); 
   }
+  // calculations of open spots so i know if it's a tie
+  let openSpots = 0;
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (board[i][j] == '') {
+        openSpots++;
+      }
+    }
+  }
 
-  // re-draw symbols so red line doesn't erase them
+  // re-draw symbols 'X' or 'O' so red line is under them
   stroke(0);
-  drawBoard(w,h);
+  drawBoard();
 
-  if(winner == null && available.length == 0){
+  if(winner == null && openSpots == 0){
     return 'tie';
   }
   else {
@@ -78,19 +113,16 @@ function draw() {
   background(255);
   strokeWeight(4);
 
-  let w = width/3;
-  let h = height/3;
-
   // draw grid 
   line(w,0,w,height);
   line(w*2,0,w*2,height);
   line(0,h,width,h);
   line(0,h*2,width,h*2);
-  
-  frameRate(1);
-  drawBoard(w,h);
 
-  let result = checkWinner(w,h);
+  drawBoard();
+  
+  //check winner and print who won
+  let result = checkWinner();
   if (result != null){
       noLoop();
       let resultP = createP('');
@@ -99,13 +131,10 @@ function draw() {
         resultP.html("Tie!");
       else 
         resultP.html(`${result} wins!`);
-  }
-  else {
-      nextTurn();
-  }  
+  } 
 }
 
-function drawBoard(w,h){
+function drawBoard(){
 
   for(let i = 0; i < 3; i++)
     for(let j = 0; j < 3; j++){
@@ -113,14 +142,14 @@ function drawBoard(w,h){
       let y = h * i + h/2;
       let spot = board[i][j];
       textSize(32);
-      if (spot == player[0]){
-        xr = w / 4;
-        line (x - xr, y-xr, x + xr, y + xr); 
-        line(x + xr, y - xr, x -xr, y + xr);
+      let r = w/4;
+      if (spot == ai){
+        line (x - r, y-r, x + r, y + r); 
+        line(x + r, y - r, x -r, y + r);
       }
-      else if(spot == player[1]){
+      else if(spot == human){
         noFill();
-        ellipse(x,y,w/2);
+        ellipse(x,y,r*2);
       }
     }
 }
