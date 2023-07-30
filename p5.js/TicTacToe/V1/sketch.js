@@ -10,7 +10,6 @@ let currentPlayer;
 
 function setup() {
   createCanvas(400, 400);
-  frameRate(1);
   currentPlayer = floor(random(player.length)); //index to player array
   for(let i = 0; i < 3; i++)
     for(let j = 0; j < 3; j++){
@@ -87,7 +86,8 @@ function draw() {
   line(w*2,0,w*2,height);
   line(0,h,width,h);
   line(0,h*2,width,h*2);
-
+  
+  frameRate(1);
   drawBoard(w,h);
 
   let result = checkWinner(w,h);
