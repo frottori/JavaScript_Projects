@@ -17,7 +17,9 @@ function setup() {
   frameRate(30);
   w = width/3;
   h = height/3;
-  bestMove();
+  firstPlayer = floor(random(2)); //either 0 : human or 1: ai;
+  if(firstPlayer == 0 )
+    bestMove();
 }
 
 function mousePressed() {
@@ -29,7 +31,7 @@ function mousePressed() {
     if (board[j][i] == '') {
       board[j][i] = human;
       currentPlayer = ai;
-      if(checkMove() == null) //so when human wins the ai doesn't play
+      if(checkWinner(false) == null) //so when human wins the ai doesn't play
         bestMove();
     }
   }
@@ -40,26 +42,30 @@ function equals3(a,b,c){
 }
 
 // checks and draws winner's move
-function checkWinner(){
+function checkWinner(draw){
   let winner = null;
-  stroke(255, 0, 0); // red stroke for who wins
 
   // horizontal check
   for(let i = 0 ; i < 3;i++){
     if(equals3(board[i][0],board[i][1],board[i][2])){
       winner = board[i][0];
-      let x = h/2;
-      let y = w * i + w/2;
-      line (x, y,5*x,y); 
+      if(draw == true){
+        stroke(255, 0, 0); // red stroke for who wins
+        let x = h/2;
+        let y = w * i + w/2;
+        line (x, y,5*x,y); 
+      }
     }
   }
   // vertical check
   for(let i = 0 ; i < 3;i++){
     if(equals3(board[0][i],board[1][i],board[2][i])){
       winner = board[0][i];
-      let x = h * i + h/2;
-      let y = w/2;
-      line (x,y,x,5*y); 
+      if(draw == true){
+        let x = h * i + h/2;
+        let y = w/2;
+        line (x,y,x,5*y); 
+      }
     }
   }
 
@@ -68,12 +74,14 @@ function checkWinner(){
   // 1st diagonal check
   if(equals3(board[0][0],board[1][1],board[2][2])){
     winner = board[0][0];
-    line (h/2,w/2,x,y); 
+    if(draw == true)
+      line (h/2,w/2,x,y); 
   }
   // 2nd diagonal check
   if(equals3(board[0][2],board[1][1],board [2][0])){
     winner = board[0][2];
-    line (x,w/2,h/2,y); 
+    if (draw == true)
+      line (x,w/2,h/2,y); 
   }
   // calculations of open spots so i know if it's a tie
   let openSpots = 0;
@@ -84,54 +92,13 @@ function checkWinner(){
       }
     }
   }
-
   // re-draw symbols 'X' or 'O' so red line is under them
-  stroke(0);
-  drawBoard();
-
-  if(winner == null && openSpots == 0){
-    return 'tie';
+  
+  if(draw == true){
+    stroke(0);
+    drawBoard();
   }
-  else {
-    return winner;
-  }
-}
-
-// only checks witout drawing (for minimax algorithm)
-function checkMove(){
-  let winner = null;
-
-  // horizontal check
-  for(let i = 0 ; i < 3;i++){
-    if(equals3(board[i][0],board[i][1],board[i][2])){
-      winner = board[i][0]; 
-    }
-  }
-  // vertical check
-  for(let i = 0 ; i < 3;i++){
-    if(equals3(board[0][i],board[1][i],board[2][i])){
-      winner = board[0][i];
-    }
-  }
-
-  // 1st diagonal check
-  if(equals3(board[0][0],board[1][1],board[2][2])){
-    winner = board[0][0];
-  }
-  // 2nd diagonal check
-  if(equals3(board[0][2],board[1][1],board [2][0])){
-    winner = board[0][2];
-  }
-  // calculations of open spots so i know if it's a tie
-  let openSpots = 0;
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      if (board[i][j] == '') {
-        openSpots++;
-      }
-    }
-  }
-
+  
   if(winner == null && openSpots == 0){
     return 'tie';
   }
@@ -144,6 +111,7 @@ function draw() {
   background(255);
   strokeWeight(4);
 
+  stroke(0);
   // draw grid 
   line(w,0,w,height);
   line(w*2,0,w*2,height);
@@ -175,10 +143,12 @@ function drawBoard(){
       textSize(32);
       let r = w/4;
       if (spot == ai){
+        stroke(0, 0, 255);
         line (x - r, y-r, x + r, y + r); 
         line(x + r, y - r, x -r, y + r);
       }
       else if(spot == human){
+        stroke(0, 128, 0);
         noFill();
         ellipse(x,y,r*2);
       }

@@ -27,7 +27,7 @@ let scores = {
 
 function minimax(board,depth, isMaximazing){
 
-    let res = checkMove();
+    let res = checkWinner(false);
     if(res !== null){
        return scores[res];
     }
