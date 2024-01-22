@@ -2,3 +2,4 @@
 - Genetic Algorithms
 - Artificial Intelligence
 - Neural Networks
+- Machine Learning
